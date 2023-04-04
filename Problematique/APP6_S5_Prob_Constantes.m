@@ -16,7 +16,7 @@ C_Mdelta = 0.10;            % Coeeff de volet aéro
 
 % Conditions initiales à l’entrée atmosphérique
 v_ini = 6100;               % En m/s
-y_ini = deg2rad(-20.5);     % En degrés (converti en rad/s)
+gamma_ini = deg2rad(-20.5); % En degrés (converti en rad/s)
 h_ini = 120000;             % En m
 s_ini = deg2rad(0.0);       % En degrés (converti en rad/s)
 Delta_ini = deg2rad(-80);   % En degrés (converti en rad/s)
@@ -30,7 +30,7 @@ h_fin =  10000;             % En m
 %% ANNEXE B : Résultats de l’expérience de la NASA
 % Conditions initiales à l’entrée atmosphérique
 v_ini_NASA = 6100;              % En m/s
-y_ini_NASA = deg2rad(-90);      % En degrés (converti en rad/s)
+gamma_ini_NASA = deg2rad(-90);  % En degrés (converti en rad/s)
 h_ini_NASA = 120000;            % En m
 s_ini_NASA = 0.0;               % En deg
 Delta_ini_NASA = deg2rad(-90);  % En degrés (converti en rad/s)
