@@ -195,24 +195,36 @@ if showTerminalOutput == 1
     disp('==================================================================================================')
 end
 % On utilise la RAA sans la gravité ici parce qu’un accéléromètre ne mesure pas la force de gravité
+roh_ini = roh0*exp(-h_ini/hs);
+vit_RAA = v_ini*exp((1/2)*B_NASA*hs*((roh_approx - roh_ini)/sin(gamma_ini_NASA)));
 
-
-
-
-
-
+P_dyn_ini = (1/2).*(roh_approx).*vit_RAA.^2; 
+D_aero_ini = P_dyn_ini.*S_aero_capsule.*C_do;
+acc_RAA = -D_aero_ini./m_capsule; % À valider la démarche et la réponse du graphique
 
 if showGraphics == 1
     figure('Name','V(h) calculée avec la RAA VS obtenue par intégration')
     hold on
     plot(alt_mes,vit_mes(1:2:end),'bo')
-    plot(alt_mes,vit_mes(1:2:end),'r')
+    plot(alt_mes,vit_RAA,'r')
     xlabel('hauteur m')
     ylabel('Vitesse v(h) m/s')
-    legend('Accélération Approximée', 'Calculée avec la RAA','Location','SouthWest')
+    legend('Vitesse Approximée (depuis NASA)', 'Vitesse avec la RAA','Location','SouthWest')
     title('V(h) calculée avec la RAA VS obtenue par intégration')
     grid on
     hold off
+    
+    figure('Name','Accélération calculée avec la RAA superposée sur les mesures accéléro de la NASA')
+    hold on
+    plot(alt_mes,-acc_mes(1:2:end),'bo')
+    plot(alt_mes, acc_RAA,'r')
+    xlabel('hauteur m')
+    ylabel('Accélération m/s^2')
+    legend('Accélération mesurée (NASA)', 'Accélération avec la RAA','Location','SouthWest')
+    title('Accélération RAA superposée sur les mesures accéléro de la NASA')
+    grid on
+    hold off
+    
 end
 
 %% Loi de guidage : limites structurelles
