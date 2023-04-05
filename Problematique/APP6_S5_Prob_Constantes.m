@@ -40,4 +40,7 @@ sigma_n_NASA = 0.035;
 % Paramètre balistique
 B_NASA = (C_do*S_aero_capsule)/m_capsule;
 
-
+%% Loi de guidage : limites structurelles
+tol_nr = 10^-10;    % Tol = e-10 OU 10^-10
+D_aero_lim = 2650;  % Limite de force en Newton dont le temps d'exposition ne doit pas dépasser 40 sec
+Delta_t_D_aero_lim = 40;    % En secondes
