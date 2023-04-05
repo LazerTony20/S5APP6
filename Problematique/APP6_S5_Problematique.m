@@ -193,6 +193,9 @@ if showTerminalOutput == 1
     disp('==================================================================================================')
     disp('===============================Loi de guidage : validation de la RAA==============================')
     disp('==================================================================================================')
+    disp(' ')
+    disp('Génération des graphiques...')
+    disp(' ')
 end
 % On utilise la RAA sans la gravité ici parce qu’un accéléromètre ne mesure pas la force de gravité
 roh_ini = roh0*exp(-h_ini/hs);
@@ -209,7 +212,7 @@ if showGraphics == 1
     plot(alt_mes,vit_RAA,'r')
     xlabel('hauteur m')
     ylabel('Vitesse v(h) m/s')
-    legend('Vitesse Approximée (depuis NASA)', 'Vitesse avec la RAA','Location','SouthWest')
+    legend('Vitesse Approximée (depuis NASA)', 'Vitesse avec la RAA','Location','SouthEast')
     title('V(h) calculée avec la RAA VS obtenue par intégration')
     grid on
     hold off
@@ -220,11 +223,10 @@ if showGraphics == 1
     plot(alt_mes, acc_RAA,'r')
     xlabel('hauteur m')
     ylabel('Accélération m/s^2')
-    legend('Accélération mesurée (NASA)', 'Accélération avec la RAA','Location','SouthWest')
+    legend('Accélération mesurée (NASA)', 'Accélération avec la RAA','Location','SouthEast')
     title('Accélération RAA superposée sur les mesures accéléro de la NASA')
     grid on
     hold off
-    
 end
 
 %% Loi de guidage : limites structurelles
@@ -234,12 +236,61 @@ if showTerminalOutput == 1
     disp('==================================================================================================')
 end
 
+% Newton-Raphson (Commun)
+r_ini = R_Mars + h_ini;
+r_fin = R_Mars + h_fin;
+roh_fin = roh0*exp(-h_fin/hs);
+roh_all = roh0*exp(-alt_mes./hs);
+% Newton-Raphson (250m/s)
+h_start_min_250 = 18000; % Point de départ choisi
+[incr_min_250, Gamma_ref_250, h_min_250, v_min_250, ~, D_aero_min_250, ~, ~, ~,] = APP6_S5_Newton_Raphson(h_start_min_250,v_fin(1),roh0,roh_ini,roh_fin,hs,r_ini,r_fin);
+h_start_max_250 = 53000; %alt_ini;
+[incr_max_250, ~, h_max_250, v_max_250, ~, D_aero_max_250, ~, ~, ~,] = APP6_S5_Newton_Raphson(h_start_max_250,v_fin(1),roh0,roh_ini,roh_fin,hs,r_ini,r_fin);
 
+v_moy_250 = (v_min_250 + v_max_250)/2;
+delta_t_250 = (h_min_250-h_max_250)/(v_moy_250*sin(Gamma_ref_250));
+vit_f_250 = v_ini*exp(1/2*B_NASA*hs*((roh_all-roh_ini)/sin(Gamma_ref_250)));
+P_f_250 = 1/2*(roh_all).*vit_f_250.^2;
 
+% Newton-Raphson (300m/s)
+h_start_min_300 = 18000; % Point de départ choisi
+[incr_min_300, Gamma_ref_300, h_min_300, v_min_300, ~, D_aero_min_300, ~, ~, ~,] = APP6_S5_Newton_Raphson(h_start_min_300,v_fin(2),roh0,roh_ini,roh_fin,hs,r_ini,r_fin);
+h_start_max_300 = 53000; % Point de départ choisi
+[incr_max_300, ~, h_max_300, v_max_300, ~, D_aero_max_300, ~, ~, ~,] = APP6_S5_Newton_Raphson(h_start_max_300,v_fin(2),roh0,roh_ini,roh_fin,hs,r_ini,r_fin);
 
+v_moy_300 = (v_min_300 + v_max_300)/2;
+delta_t_300 = (h_min_300-h_max_300)/(v_moy_300*sin(Gamma_ref_300));
+vit_f_300 = v_ini*exp(1/2*B_NASA*hs*((roh_all-roh_ini)/sin(Gamma_ref_300)));
+P_f_300 = 1/2*(roh_all).*vit_f_300.^2;
 
-
-
+if showTerminalOutput == 1
+    disp('=====VALEURS POUR V_FIN = 250m/s=====')
+    disp(['γref = ', num2str(rad2deg(Gamma_ref_250)), ' degrés'])
+    disp(['h_min = ', num2str(h_min_250), ' m'])
+    disp(['v_min = ', num2str(v_min_250), ' m/s'])
+    disp(['h_depart = ', num2str(h_start_min_250)])
+    disp(['#Itérations = ', num2str(incr_min_250)])
+    disp(['h_max = ', num2str(h_max_250), ' m'])
+    disp(['v_max = ', num2str(v_max_250), ' m/s'])
+    disp(['h_depart = ', num2str(h_start_max_250)])
+    disp(['#Itérations = ', num2str(incr_max_250)])
+    disp(['P_dyn_max : ', num2str(P_f_250(16)), ' N/m^2'])
+    disp(['Δt^ lim = ', num2str(delta_t_250), ' s'])
+    disp(' ')
+    disp('=====VALEURS POUR V_FIN = 300m/s=====')
+    disp(['γref = ', num2str(rad2deg(Gamma_ref_300)), ' degrés'])
+    disp(['h_min = ', num2str(h_min_300), ' m'])
+    disp(['v_min = ', num2str(v_min_300), ' m/s'])
+    disp(['h_depart = ', num2str(h_start_min_300)])
+    disp(['#Itérations = ', num2str(incr_min_300)])
+    disp(['h_max = ', num2str(h_max_300), ' m'])
+    disp(['v_max = ', num2str(v_max_300), ' m/s'])
+    disp(['h_depart = ', num2str(h_start_max_300)])
+    disp(['#Itérations = ', num2str(incr_max_300)])
+    disp(['P_dyn_max : ', num2str(P_f_300(16)), ' N/m^2'])
+    disp(['Δt^ lim = ', num2str(delta_t_300), ' s'])
+    disp(' ')
+end
 
 %% Conception d’asservissements : loi de commande en translation
 if showTerminalOutput == 1
